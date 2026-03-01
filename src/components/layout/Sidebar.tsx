@@ -14,24 +14,27 @@ import {
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
-
-const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-  { icon: ShoppingCart, label: 'POS', path: '/pos' },
-  { icon: Package, label: 'Inventory', path: '/inventory' },
-  { icon: History, label: 'Sales History', path: '/sales' },
-  { icon: Users, label: 'Customers', path: '/customers' },
-  { icon: BarChart3, label: 'Reports', path: '/reports' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
-];
+import { useTranslation } from 'react-i18next';
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.dir() === 'rtl';
+
+  const navItems = [
+    { icon: LayoutDashboard, label: t('dashboard'), path: '/' },
+    { icon: ShoppingCart, label: t('pos'), path: '/pos' },
+    { icon: Package, label: t('inventory'), path: '/inventory' },
+    { icon: History, label: t('sales_history'), path: '/sales' },
+    { icon: Users, label: t('customers'), path: '/customers' },
+    { icon: BarChart3, label: t('reports'), path: '/reports' },
+    { icon: Settings, label: t('settings'), path: '/settings' },
+  ];
 
   return (
     <>
       {/* Mobile Toggle */}
-      <div className="md:hidden fixed top-4 left-4 z-50">
+      <div className={cn("md:hidden fixed top-4 z-50", isRtl ? "right-4" : "left-4")}>
         <Button variant="outline" size="icon" onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
@@ -40,14 +43,15 @@ export function Sidebar() {
       {/* Sidebar Container */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-white transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:h-screen",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-y-0 z-40 w-64 bg-slate-900 text-white transform transition-transform duration-200 ease-in-out md:translate-x-0 md:static md:h-screen",
+          isRtl ? "right-0 border-l border-slate-800" : "left-0 border-r border-slate-800",
+          isOpen ? "translate-x-0" : (isRtl ? "translate-x-full" : "-translate-x-full")
         )}
       >
         <div className="flex flex-col h-full">
           <div className="p-6 border-b border-slate-800">
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-              SmartPOS
+              {t('app_name')}
             </h1>
             <p className="text-xs text-slate-400 mt-1">Pro Edition</p>
           </div>
@@ -67,7 +71,7 @@ export function Sidebar() {
                 }
                 onClick={() => setIsOpen(false)}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className={cn("h-5 w-5", isRtl && "ml-2")} />
                 <span className="font-medium">{item.label}</span>
               </NavLink>
             ))}
@@ -75,8 +79,8 @@ export function Sidebar() {
 
           <div className="p-4 border-t border-slate-800">
             <button className="flex items-center gap-3 px-4 py-3 w-full rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">
-              <LogOut className="h-5 w-5" />
-              <span className="font-medium">Logout</span>
+              <LogOut className={cn("h-5 w-5", isRtl && "ml-2")} />
+              <span className="font-medium">{t('logout')}</span>
             </button>
           </div>
         </div>

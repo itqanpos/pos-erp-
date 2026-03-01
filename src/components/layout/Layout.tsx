@@ -1,7 +1,16 @@
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
+import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
 
 export function Layout() {
+  const { i18n } = useTranslation();
+  
+  useEffect(() => {
+    document.dir = i18n.dir();
+    document.documentElement.lang = i18n.language;
+  }, [i18n.language]);
+
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
       <Sidebar />

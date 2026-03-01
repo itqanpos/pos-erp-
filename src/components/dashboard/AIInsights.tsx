@@ -5,8 +5,10 @@ import { generateInsights } from '@/services/ai';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Sparkles, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { useTranslation } from 'react-i18next';
 
 export function AIInsights() {
+  const { t } = useTranslation();
   const sales = useLiveQuery(() => db.sales.toArray());
   const [insights, setInsights] = useState<string[]>([]);
   const [recommendation, setRecommendation] = useState<string>('');
@@ -14,7 +16,7 @@ export function AIInsights() {
 
   const handleGenerate = async () => {
     if (!sales || sales.length === 0) {
-      setInsights(["Not enough data to generate insights."]);
+      setInsights([t('no_sales')]);
       return;
     }
     
@@ -35,7 +37,7 @@ export function AIInsights() {
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="flex items-center gap-2 text-indigo-900">
           <Sparkles className="h-5 w-5 text-indigo-600" />
-          AI Business Insights
+          {t('ai_insights')}
         </CardTitle>
         <Button 
           size="sm" 
@@ -44,7 +46,7 @@ export function AIInsights() {
           onClick={handleGenerate}
           disabled={loading}
         >
-          {loading ? 'Analyzing...' : 'Generate Insights'}
+          {loading ? t('analyzing') : t('generate_insights')}
         </Button>
       </CardHeader>
       <CardContent>
@@ -62,7 +64,7 @@ export function AIInsights() {
               <div className="bg-white/60 p-3 rounded-lg border border-indigo-100 flex gap-3 items-start">
                 <Lightbulb className="h-5 w-5 text-amber-500 shrink-0" />
                 <div>
-                  <h4 className="font-medium text-indigo-900 text-sm mb-1">Recommendation</h4>
+                  <h4 className="font-medium text-indigo-900 text-sm mb-1">{t('recommendation')}</h4>
                   <p className="text-sm text-slate-600">{recommendation}</p>
                 </div>
               </div>
@@ -70,7 +72,7 @@ export function AIInsights() {
           </div>
         ) : (
           <div className="text-center py-8 text-indigo-300 text-sm">
-            Click generate to analyze your sales data with AI.
+            {t('generate_insights')}
           </div>
         )}
       </CardContent>

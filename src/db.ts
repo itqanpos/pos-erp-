@@ -116,8 +116,8 @@ db.on('populate', async () => {
   ]);
 
   await db.products.bulkAdd([
-    { name: 'Cola Can', barcode: '123456789', price: 1.50, cost: 0.80, stock: 100, category: 'Beverages' },
-    { name: 'Potato Chips', barcode: '987654321', price: 2.00, cost: 1.20, stock: 50, category: 'Snacks' },
+    { name: 'Cola Can', barcode: '123456789', price: 1.50, cost: 0.80, stock: 100, category: 'Beverages', expiryDate: new Date('2025-12-31') },
+    { name: 'Potato Chips', barcode: '987654321', price: 2.00, cost: 1.20, stock: 50, category: 'Snacks', expiryDate: new Date('2025-06-30') },
     { name: 'USB Cable', barcode: '11223344', price: 5.99, cost: 2.50, stock: 30, category: 'Electronics' },
     { name: 'T-Shirt', barcode: '55667788', price: 15.00, cost: 8.00, stock: 20, category: 'Clothing' },
   ]);
