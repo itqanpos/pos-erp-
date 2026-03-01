@@ -1,0 +1,5 @@
+{
+  "name": "SmartPOS Pro",
+  "description": "A comprehensive Point of Sale and inventory management system with AI analytics, offline support, and multi-branch capabilities.",
+  "requestFramePermissions": ["camera"]
+}
