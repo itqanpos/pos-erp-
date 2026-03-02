@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '@/db';
 import {
@@ -8,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Activity, DollarSign, Users, ShoppingBag } from 'lucide-react';
 import { AIInsights } from '@/components/dashboard/AIInsights';
@@ -19,22 +20,48 @@ export function Dashboard() {
   const sales = useLiveQuery(() => db.sales.toArray());
   const products = useLiveQuery(() => db.products.toArray());
   const customers = useLiveQuery(() => db.customers.toArray());
+  const expenses = useLiveQuery(() => db.expenses.toArray());
 
-  const totalRevenue = sales?.reduce((acc, sale) => acc + sale.total, 0) || 0;
-  const totalOrders = sales?.length || 0;
+  const completedSales = sales?.filter(s => s.status === 'completed') || [];
+  const totalRevenue = completedSales.reduce((acc, sale) => acc + sale.total, 0);
+  const totalOrders = completedSales.length;
   const totalProducts = products?.length || 0;
   const totalCustomers = customers?.length || 0;
+  const totalExpenses = expenses?.reduce((acc, exp) => acc + exp.amount, 0) || 0;
 
-  // Mock data for charts if no sales yet
-  const chartData = [
-    { name: 'Mon', sales: 4000 },
-    { name: 'Tue', sales: 3000 },
-    { name: 'Wed', sales: 2000 },
-    { name: 'Thu', sales: 2780 },
-    { name: 'Fri', sales: 1890 },
-    { name: 'Sat', sales: 2390 },
-    { name: 'Sun', sales: 3490 },
-  ];
+  // Calculate COGS
+  const productCostMap = new Map(products?.map(p => [p.id, p.cost]) || []);
+  const totalCOGS = completedSales.reduce((sum, sale) => {
+    return sum + sale.items.reduce((itemSum, item) => {
+      const cost = productCostMap.get(item.productId) || 0;
+      return itemSum + (cost * item.quantity);
+    }, 0);
+  }, 0);
+
+  const totalProfit = totalRevenue - totalCOGS - totalExpenses;
+
+  const chartData = useMemo(() => {
+    if (!sales) return [];
+    
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return d;
+    });
+
+    return last7Days.map(date => {
+      const daySales = completedSales.filter(s => 
+        new Date(s.date).toDateString() === date.toDateString()
+      );
+      
+      return {
+        name: date.toLocaleDateString('en-US', { weekday: 'short' }),
+        sales: daySales.reduce((acc, s) => acc + s.total, 0)
+      };
+    });
+  }, [sales]);
+
+  const recentSales = [...completedSales].sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 5);
 
   return (
     <div className="space-y-8">
@@ -83,6 +110,18 @@ export function Dashboard() {
             <p className="text-xs text-muted-foreground">+201 since last hour</p>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{t('net_profit') || 'Net Profit'}</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className={cn("text-2xl font-bold", totalProfit >= 0 ? "text-green-600" : "text-red-600")}>
+              {formatCurrency(totalProfit)}
+            </div>
+            <p className="text-xs text-muted-foreground">Revenue - (COGS + Expenses)</p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
@@ -124,7 +163,7 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
-              {sales?.slice(0, 5).map((sale) => (
+              {recentSales.map((sale) => (
                 <div key={sale.id} className="flex items-center">
                   <div className="ml-4 space-y-1">
                     <p className="text-sm font-medium leading-none">Order #{sale.id}</p>
@@ -135,7 +174,7 @@ export function Dashboard() {
                   <div className="ml-auto font-medium">+{formatCurrency(sale.total)}</div>
                 </div>
               ))}
-              {(!sales || sales.length === 0) && (
+              {recentSales.length === 0 && (
                 <div className="text-center text-muted-foreground py-8">
                   {t('no_sales')}
                 </div>

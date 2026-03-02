@@ -78,6 +78,16 @@ export interface AuditLog {
   employeeId?: number;
 }
 
+export interface Expense {
+  id?: number;
+  description: string;
+  amount: number;
+  category: string;
+  date: Date;
+  paymentMethod: 'cash' | 'card' | 'bank_transfer' | 'other';
+  notes?: string;
+}
+
 export interface Setting {
   key: string;
   value: any;
@@ -91,6 +101,7 @@ const db = new Dexie('SmartPOSDatabase') as Dexie & {
   suppliers: EntityTable<Supplier, 'id'>;
   employees: EntityTable<Employee, 'id'>;
   auditLogs: EntityTable<AuditLog, 'id'>;
+  expenses: EntityTable<Expense, 'id'>;
   settings: EntityTable<Setting, 'key'>;
 };
 
@@ -104,6 +115,14 @@ db.version(1).stores({
   employees: '++id, name, role',
   auditLogs: '++id, date, action',
   settings: 'key'
+});
+
+db.version(2).stores({
+  employees: '++id, name, role, pin'
+});
+
+db.version(3).stores({
+  expenses: '++id, date, category'
 });
 
 // Seed initial data if empty

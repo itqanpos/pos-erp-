@@ -33,16 +33,16 @@ export function AIInsights() {
   };
 
   return (
-    <Card className="col-span-4 lg:col-span-3 bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-100">
+    <Card className="col-span-4 lg:col-span-3 bg-gradient-to-br from-primary/5 to-accent/20 border-primary/10">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="flex items-center gap-2 text-indigo-900">
-          <Sparkles className="h-5 w-5 text-indigo-600" />
+        <CardTitle className="flex items-center gap-2 text-primary">
+          <Sparkles className="h-5 w-5 text-primary" />
           {t('ai_insights')}
         </CardTitle>
         <Button 
           size="sm" 
           variant="outline" 
-          className="bg-white/50 hover:bg-white border-indigo-200 text-indigo-700"
+          className="bg-background/50 hover:bg-background border-primary/20 text-primary"
           onClick={handleGenerate}
           disabled={loading}
         >
@@ -54,24 +54,24 @@ export function AIInsights() {
           <div className="space-y-4">
             <div className="space-y-2">
               {insights.map((insight, i) => (
-                <div key={i} className="flex gap-2 items-start text-sm text-slate-700">
-                  <div className="mt-1 h-1.5 w-1.5 rounded-full bg-indigo-400 shrink-0" />
+                <div key={i} className="flex gap-2 items-start text-sm text-muted-foreground">
+                  <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
                   <p>{insight}</p>
                 </div>
               ))}
             </div>
             {recommendation && (
-              <div className="bg-white/60 p-3 rounded-lg border border-indigo-100 flex gap-3 items-start">
-                <Lightbulb className="h-5 w-5 text-amber-500 shrink-0" />
+              <div className="bg-background/60 p-3 rounded-lg border border-primary/10 flex gap-3 items-start">
+                <Lightbulb className="h-5 w-5 text-yellow-500 shrink-0" />
                 <div>
-                  <h4 className="font-medium text-indigo-900 text-sm mb-1">{t('recommendation')}</h4>
-                  <p className="text-sm text-slate-600">{recommendation}</p>
+                  <h4 className="font-medium text-foreground text-sm mb-1">{t('recommendation')}</h4>
+                  <p className="text-sm text-muted-foreground">{recommendation}</p>
                 </div>
               </div>
             )}
           </div>
         ) : (
-          <div className="text-center py-8 text-indigo-300 text-sm">
+          <div className="text-center py-8 text-muted-foreground/50 text-sm">
             {t('generate_insights')}
           </div>
         )}

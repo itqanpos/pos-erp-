@@ -21,9 +21,21 @@ export function SalesHistory() {
   const { t } = useTranslation();
   const sales = useLiveQuery(() => db.sales.orderBy('date').reverse().toArray());
 
-  const handleRefund = async (saleId: number) => {
+  const handleRefund = async (sale: any) => {
     if (confirm(t('confirm_delete'))) {
-      await db.sales.update(saleId, { status: 'refunded' });
+      await db.transaction('rw', db.sales, db.products, async () => {
+        await db.sales.update(sale.id, { status: 'refunded' });
+        
+        // Restore stock
+        for (const item of sale.items) {
+          const product = await db.products.get(item.productId);
+          if (product) {
+            await db.products.update(item.productId, {
+              stock: product.stock + item.quantity
+            });
+          }
+        }
+      });
       toast.success(t('refunded'));
     }
   };
@@ -93,7 +105,7 @@ export function SalesHistory() {
                 </TableCell>
                 <TableCell className="text-right">
                   {sale.status === 'completed' && (
-                    <Button variant="ghost" size="sm" onClick={() => handleRefund(sale.id)} className="text-red-600 hover:text-red-800 hover:bg-red-50">
+                    <Button variant="ghost" size="sm" onClick={() => handleRefund(sale)} className="text-red-600 hover:text-red-800 hover:bg-red-50">
                       <RotateCcw className="h-4 w-4 mr-1" />
                       {t('refunded')}
                     </Button>
